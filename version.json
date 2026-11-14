@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
-  "notes": "Smoother voxel terrain, alpine snow only on high mountains, varied tree models and forest distribution, improved update workflow.",
+  "version": "0.3.1",
+  "notes": "Reworked mountain geometry: elongated rugged ridgelines, branching crests and smoother valleys instead of rounded domes.",
   "update_url": "https://github.com/raphaelsancho21-byte/RealTerra-Engine"
 }
