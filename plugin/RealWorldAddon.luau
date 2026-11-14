@@ -40,6 +40,7 @@ for lon=-180,150,30 do
  for lat=-85,85,5 do dot(lat,lon,2.53,gridColor,.018) end
 end
 local selectionDot=dot(-22.9068,-43.1729,2.59,C.green,.14)
+local selectionEntry=earthMarkers[#earthMarkers]
 local function redrawEarth()
  local rot=CFrame.Angles(pitch,yaw,0)
  for i,entry in ipairs(earthMarkers) do
@@ -67,7 +68,7 @@ local function setCoordinates(lat,lon,description)
  latBox.Text=string.format("%.5f",lat)
  lonBox.Text=string.format("%.5f",lon)
  coordinateInfo.Text=description or string.format("Selected: %.5f, %.5f",lat,lon)
- earthMarkers[#earthMarkers].v=globeVector(lat,lon)*2.59
+ selectionEntry.v=globeVector(lat,lon)*2.59
  redrawEarth()
 end
 local dragging=false
@@ -231,7 +232,7 @@ realGenerate.MouseButton1Click:Connect(function()
    status.Text="Downloading mapped streets..."
    local roads={}
    local query=string.format('[out:json][timeout:25];way["highway"](%0.6f,%0.6f,%0.6f,%0.6f);out geom;',south,west,north,east)
-   local osmUrl="https://overpass.kumi.systems/api/interpreter?data="..HttpService:UrlEncode(query)
+   local osmUrl="https://overpass-api.de/api/interpreter?data="..HttpService:UrlEncode(query)
    local roadsOk,roadsData=pcall(function()return requestJson(osmUrl)end)
    if roadsOk and type(roadsData.elements)=="table" then
     roads=roadsData.elements
