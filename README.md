@@ -69,3 +69,13 @@ The existing procedural tool still supports terrain seeds, Baseplate size matchi
 - Default real-world import area reduced to 250m.
 
 The public Overpass and elevation services can still be slow or unavailable. Start in a blank Studio place and use a small area.
+
+## v0.5.0 — New floating workspace UI
+
+- **Generator** tab: procedural terrain, Baseplate matching, mountains and forest settings.
+- **Real Earth** tab: interactive globe, latitude/longitude and terrain/road import.
+- **Updates** tab: GitHub version checks and CMD update instructions.
+- Global status area shows generation progress from any tab.
+- Plugin opens in a **native floating Studio window** that can be moved with its titlebar, resized or docked to Studio side panels. It does not place a ScreenGui into StarterGui or PlayerGui.
+
+**Note:** the tabbed layout is published as source and needs testing inside Roblox Studio, especially Studio plugin UI sizing and the floating window behavior.
