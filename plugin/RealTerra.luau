@@ -1,9 +1,9 @@
--- RealTerra Engine v0.3.1
+-- RealTerra Engine v0.4.0
 -- Procedural voxel terrain, selective alpine snow, and varied forests.
 local Terrain = workspace.Terrain
 local HttpService = game:GetService("HttpService")
 local ChangeHistoryService = game:GetService("ChangeHistoryService")
-local VERSION = "0.3.1"
+local VERSION = "0.4.0"
 local UPDATE_URL = "https://github.com/raphaelsancho21-byte/RealTerra-Engine#install--update-via-cmd"
 local MANIFEST_URL = "https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/version.json"
 local INSTALL_CMD = 'curl -fL -o "%TEMP%\\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1 && powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\\realterra-install.ps1"'
