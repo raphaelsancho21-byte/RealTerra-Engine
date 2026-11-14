@@ -1,37 +1,61 @@
 # RealTerra Engine
 
-Open-source Roblox Studio terrain generation plugin for Windows.
+Open-source terrain generator for Roblox Studio on Windows.
 
 ## Install / update via CMD
 
-Run in Windows CMD:
+Run these two commands in Windows CMD, then restart Roblox Studio:
 
 ```cmd
 curl -fL -o "%TEMP%\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\realterra-install.ps1"
 ```
 
-Restart Roblox Studio. The local plugin is written to `%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx`.
+The installer downloads and assembles both Luau source files into the local plugin at:
+`%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx`
 
-## RealTerra Engine v0.3.0
+## v0.4.0 - Real Earth beta
 
-- Smoother **4-stud voxel** terrain via chunked `Terrain:WriteVoxels`, replacing the original block-column terrain.
-- Procedural rolling hills and mountain peaks.
-- **Snow on tall mountain peaks** (checkbox). Snow is only enabled with Mountain strength >= 90 and elevations above the alpine threshold; smaller hills stay green or rocky.
-- More detailed procedural tree models: broadleaf trees and conifers with varied sizes and crown shapes.
-- Trees distributed across the whole generated grassy area using seeded jitter and forest-density noise; steep slopes, rock and snow avoided.
-- **Match Baseplate size** checkbox uses the X/Z dimensions of a BasePart named `Baseplate`. Axis-aligned Baseplates supported.
-- Seed, mountain intensity, tree density and generation status controls.
-- **Check for Updates** checks the version manifest and opens update instructions if a new version is published. **Open Update Page** opens the GitHub page and reveals a copyable CMD command within the plugin.
+A new Real Earth section appears in the RealTerra sidebar. It contains:
 
-### Important limitations
+- 3D holographic globe in a ViewportFrame. Mouse-drag to rotate it and click to choose a location.
+- Land outlines fetched from **Natural Earth 110m**; the globe grid remains usable without outline access.
+- Latitude and longitude entry, with a quick city-preset cycling button.
+- Selected area width: **200–1600 meters**, scale: **0.5–2 Roblox studs per meter**.
+- Real elevation samples from the **OpenTopoData Mapzen** global dataset (9×9 points, interpolated into Roblox terrain).
+- Street and path geometry from **OpenStreetMap** via the public Overpass API, drawn as asphalt Parts following the sampled terrain.
+- **No buildings**; city data only includes elevation and roads.
+- Original procedural terrain generator remains available.
 
-- Local Studio plugins **cannot silently self-replace their installed .rbxmx file** with a supported public API. To install an update, use the CMD command and restart Studio. The button makes the update procedure visible and accessible; it does not silently install.
-- Save or duplicate your place before generation: the tool **overwrites voxel terrain inside the generation region**.
-- **Remove Generated Trees** does not undo terrain generation. Use Studio undo or a saved backup if needed.
-- The Baseplate itself is not removed.
-- Rotated or tilted Baseplates are refused in this version (terrain voxels are world-axis-aligned). Baseplates must be 8–2048 studs in X and Z.
-- Very large maps can take substantial time, RAM and Studio memory.
-- Trees are procedural Parts, not imported realistic 3D mesh models.
-- Plugin HTTP access may require permission to check updates.
-- Review the public installer before running it.
+### How to use
+
+1. Open RealTerra from Roblox Studio Plugins toolbar.
+2. Scroll down to **04 REAL EARTH / BETA**.
+3. Rotate and click the globe, choose a preset, or type coordinates.
+4. Pick area width and scale. Start with **400m** to limit generation time.
+5. Click **IMPORT REAL TERRAIN + ROADS**.
+6. Grant the requested HTTP permissions in the plugin dialog when prompted.
+
+### Data sources and credits
+
+- Coastlines: [Natural Earth](https://www.naturalearthdata.com/), public-domain land polygons.
+- Elevation: [OpenTopoData](https://www.opentopodata.org/), Mapzen elevation dataset, subject to dataset limitations.
+- Road geometry: **© OpenStreetMap contributors**, licensed under [ODbL](https://www.openstreetmap.org/copyright). Provide appropriate attribution in games featuring imported OSM roads.
+
+### Limitations and warnings
+
+- **Experimental / untested in a live Studio environment.** Public web API availability can vary.
+- Real geography is sampled and interpolated: 9×9 elevation points cannot reproduce fine ground detail. Relative relief is scaled and elevations beyond 300 studs are capped for performance. This is a geographic approximation, not a survey-grade reconstruction.
+- Roads are straight line segments along mapped ways. Intersections, bridges, tunnels, sidewalks and complex road grading are not handled yet.
+- If the Overpass API is unavailable, elevation-only terrain may be generated. The status message explains that streets were omitted.
+- Imported terrain is written at the origin in this first version and **can overwrite existing Terrain** in the area. Back up your place or use a fresh project.
+- The importer limits roads to **900 segments** and expects small regions.
+- Don't import huge areas repeatedly: OpenTopoData's free API has usage limits (100 points per request, one call per second, 1000 calls/day).
+- Real Earth imports create a \`RealTerra_RealWorld\` folder containing road parts and metadata. The terrain voxels are not removed automatically if you delete this folder.
+- The globe requires HTTP permission to GitHub for coastline outlines; the elevation and road imports require HTTP permission to their respective services.
+- Local Studio plugins cannot auto-replace themselves. Use CMD to install updates, then restart Studio.
+
+## Procedural generator
+
+The existing procedural tool still supports terrain seeds, Baseplate size matching, mountain generation with optional snow, varied trees and density controls.
+
