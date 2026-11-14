@@ -1,6 +1,13 @@
 
--- REALTERRA REAL WORLD ADDON v0.4.1
+-- REALTERRA REAL WORLD ADDON v0.5.0
 -- The installer appends this source to the core plugin as one Luau chunk.
+
+-- Capture procedural controls before adding geographic controls.
+-- This allows organizing the legacy generators into separate visual tabs.
+local __coreControls = {}
+for _,child in ipairs(scroll:GetChildren()) do
+ __coreControls[child] = true
+end
 section("04  REAL EARTH  /  BETA","Pick a point on the holographic globe or enter coordinates.")
 local worldCard=Instance.new("Frame")
 worldCard.Name="EarthSelector";worldCard.Size=UDim2.new(1,0,0,260)
@@ -356,3 +363,155 @@ realGenerate.MouseButton1Click:Connect(function()
   running=false;realGenerate.Active=true
  end)
 end)
+
+
+-- REALTERRA WORKSPACE UI V0.5
+-- Roblox plugins must live in DockWidgetPluginGui rather than StarterGui.
+-- The floating window can be dragged via the native Studio titlebar,
+-- resized, and docked; tabs organize editing tools.
+local shell=Instance.new("Frame")
+shell.Name="RealTerraWorkspace"
+shell.Size=UDim2.fromScale(1,1)
+shell.BackgroundColor3=C.bg;shell.BorderSizePixel=0
+shell.Parent=widget
+
+local bar=Instance.new("Frame")
+bar.Name="Header"
+bar.Size=UDim2.new(1,0,0,64)
+bar.BackgroundColor3=C.panel;bar.BorderSizePixel=0;bar.Parent=shell
+local title=Instance.new("TextLabel")
+title.Name="AppTitle"
+title.Position=UDim2.new(0,18,0,9)
+title.Size=UDim2.new(1,-36,0,26)
+title.BackgroundTransparency=1;title.Text="◈  REALTERRA ENGINE"
+title.TextColor3=C.white;title.TextXAlignment=Enum.TextXAlignment.Left
+title.Font=Enum.Font.GothamBold;title.TextSize=19;title.Parent=bar
+local subtitle=Instance.new("TextLabel")
+subtitle.Size=UDim2.new(1,-36,0,18);subtitle.Position=UDim2.new(0,18,0,37)
+subtitle.BackgroundTransparency=1;subtitle.Text="PROCEDURAL  /  REAL EARTH   •   V0.5.0"
+subtitle.TextColor3=C.muted;subtitle.Font=Enum.Font.Gotham
+subtitle.TextSize=10;subtitle.TextXAlignment=Enum.TextXAlignment.Left;subtitle.Parent=bar
+
+local navigation=Instance.new("Frame")
+navigation.Name="Tabs";navigation.Position=UDim2.new(0,0,0,64)
+navigation.Size=UDim2.new(1,0,0,46)
+navigation.BackgroundColor3=C.bg;navigation.BorderSizePixel=0
+navigation.Parent=shell
+local navPadding=Instance.new("UIPadding")
+navPadding.PaddingLeft=UDim.new(0,12);navPadding.PaddingRight=UDim.new(0,12)
+navPadding.PaddingTop=UDim.new(0,5);navPadding.PaddingBottom=UDim.new(0,5)
+navPadding.Parent=navigation
+local navLayout=Instance.new("UIListLayout")
+navLayout.FillDirection=Enum.FillDirection.Horizontal
+navLayout.HorizontalAlignment=Enum.HorizontalAlignment.Center
+navLayout.SortOrder=Enum.SortOrder.LayoutOrder;navLayout.Padding=UDim.new(0,7)
+navLayout.Parent=navigation
+local content=Instance.new("Frame")
+content.Name="Pages";content.Position=UDim2.new(0,0,0,110)
+content.Size=UDim2.new(1,0,1,-110);content.BackgroundTransparency=1
+content.ClipsDescendants=true;content.Parent=shell
+
+local function page(name)
+ local frame=Instance.new("ScrollingFrame")
+ frame.Name=name;frame.Size=UDim2.fromScale(1,1)
+ frame.CanvasSize=UDim2.new();frame.AutomaticCanvasSize=Enum.AutomaticSize.Y
+ frame.BackgroundColor3=C.bg;frame.BorderSizePixel=0
+ frame.ScrollBarThickness=5;frame.ScrollBarImageColor3=C.green
+ frame.ScrollingDirection=Enum.ScrollingDirection.Y
+ frame.Visible=false;frame.Parent=content
+ local padding=Instance.new("UIPadding")
+ padding.PaddingTop=UDim.new(0,15);padding.PaddingBottom=UDim.new(0,24)
+ padding.PaddingLeft=UDim.new(0,16);padding.PaddingRight=UDim.new(0,16)
+ padding.Parent=frame
+ local list=Instance.new("UIListLayout")
+ list.SortOrder=Enum.SortOrder.LayoutOrder;list.Padding=UDim.new(0,9);list.Parent=frame
+ return frame
+end
+
+-- Keep existing generator UI and event bindings intact.
+scroll.Name="ProceduralPage"
+scroll.Parent=content
+scroll.Position=UDim2.new()
+scroll.Size=UDim2.fromScale(1,1)
+scroll.Visible=true
+local realPage=page("RealEarthPage")
+local settingsPage=page("UpdatesPage")
+
+-- Detach and reparent only the direct UI controls created by the Real Earth addon.
+-- We preserve original visual order because all controls use automatic insertion order.
+local incoming={}
+for _,child in ipairs(scroll:GetChildren()) do
+ if not __coreControls[child] and child:IsA("GuiObject") then
+  table.insert(incoming,child)
+ end
+end
+for _,child in ipairs(incoming) do child.Parent=realPage end
+
+-- Place update controls in their own tab, preserving the events on the objects.
+local updateHeading=Instance.new("TextLabel")
+updateHeading.Size=UDim2.new(1,0,0,32)
+updateHeading.BackgroundTransparency=1
+updateHeading.Text="UPDATES  /  VERSION CONTROL"
+updateHeading.TextSize=15;updateHeading.Font=Enum.Font.GothamBold
+updateHeading.TextColor3=C.green
+updateHeading.TextXAlignment=Enum.TextXAlignment.Left
+updateHeading.Parent=settingsPage
+local info=Instance.new("TextLabel")
+info.Size=UDim2.new(1,0,0,105)
+info.BackgroundTransparency=1;info.TextWrapped=true
+info.TextXAlignment=Enum.TextXAlignment.Left;info.TextYAlignment=Enum.TextYAlignment.Top
+info.TextColor3=C.muted;info.TextSize=13;info.Font=Enum.Font.Gotham
+info.Text="Installed: v0.5.0\n\nCheck GitHub for new releases, then install via CMD and restart Studio. Local Studio plugins cannot safely overwrite their own source."
+info.Parent=settingsPage
+updates.Parent=settingsPage
+updateLink.Parent=settingsPage
+installBox.Parent=settingsPage
+local updateStatus=Instance.new("TextLabel")
+updateStatus.Size=UDim2.new(1,0,0,48)
+updateStatus.BackgroundTransparency=1;updateStatus.TextWrapped=true
+updateStatus.Font=Enum.Font.Gotham;updateStatus.TextSize=12
+updateStatus.TextColor3=C.muted;updateStatus.TextXAlignment=Enum.TextXAlignment.Left
+updateStatus.Text="Update checks require HTTP permission. The install command appears after clicking Open Update Page."
+updateStatus.Parent=settingsPage
+
+-- Shared status is kept on the generation page; surface it in the header
+-- so real-world imports and update checks remain visible on every tab.
+local notification=Instance.new("TextLabel")
+notification.Name="LiveStatus";notification.Size=UDim2.new(1,-28,0,48)
+notification.Position=UDim2.new(0,14,1,-54)
+notification.BackgroundColor3=C.panel;notification.BackgroundTransparency=.06
+notification.BorderSizePixel=0;notification.TextWrapped=true
+notification.TextColor3=C.white;notification.Font=Enum.Font.Gotham
+notification.TextSize=11;notification.ZIndex=10;notification.Parent=shell
+round(notification)
+content.Size=UDim2.new(1,0,1,-164)
+local function syncStatus()
+ notification.Text="  "..status.Text
+end
+status:GetPropertyChangedSignal("Text"):Connect(syncStatus)
+syncStatus()
+local pages={scroll,realPage,settingsPage}
+local labels={"GENERATOR","REAL EARTH","UPDATES"}
+local buttons={}
+local function selectTab(index)
+ for i,p in ipairs(pages) do
+  p.Visible=i==index
+  local b=buttons[i]
+  if b then
+   b.BackgroundColor3=i==index and C.green or C.input
+   b.TextColor3=i==index and C.bg or C.white
+  end
+ end
+end
+for i,labelText in ipairs(labels) do
+ local b=Instance.new("TextButton")
+ b.Name=labelText:gsub(" ","").."Tab"
+ b.Size=UDim2.new(0,math.floor(116),1,0)
+ b.BackgroundColor3=C.input;b.BorderSizePixel=0
+ b.Text=labelText;b.TextSize=11
+ b.Font=Enum.Font.GothamBold;b.TextColor3=C.white
+ b.LayoutOrder=i;b.Parent=navigation;round(b)
+ buttons[i]=b
+ b.MouseButton1Click:Connect(function()selectTab(i)end)
+end
+selectTab(1)
