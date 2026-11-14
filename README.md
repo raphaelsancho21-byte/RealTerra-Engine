@@ -6,21 +6,21 @@ Open-source Roblox Studio terrain generation plugin for Windows.
 
 Run in Windows CMD:
 
-\`\`\`cmd
+```cmd
 curl -fL -o "%TEMP%\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\realterra-install.ps1"
-\`\`\`
+```
 
-Restart Roblox Studio. The local plugin is written to \`%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx\`.
+Restart Roblox Studio. The local plugin is written to `%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx`.
 
 ## RealTerra Engine v0.3.0
 
-- Smoother **4-stud voxel** terrain via chunked \`Terrain:WriteVoxels\`, replacing the original block-column terrain.
+- Smoother **4-stud voxel** terrain via chunked `Terrain:WriteVoxels`, replacing the original block-column terrain.
 - Procedural rolling hills and mountain peaks.
 - **Snow on tall mountain peaks** (checkbox). Snow is only enabled with Mountain strength >= 90 and elevations above the alpine threshold; smaller hills stay green or rocky.
 - More detailed procedural tree models: broadleaf trees and conifers with varied sizes and crown shapes.
 - Trees distributed across the whole generated grassy area using seeded jitter and forest-density noise; steep slopes, rock and snow avoided.
-- **Match Baseplate size** checkbox uses the X/Z dimensions of a BasePart named \`Baseplate\`. Axis-aligned Baseplates supported.
+- **Match Baseplate size** checkbox uses the X/Z dimensions of a BasePart named `Baseplate`. Axis-aligned Baseplates supported.
 - Seed, mountain intensity, tree density and generation status controls.
 - **Check for Updates** checks the version manifest and opens update instructions if a new version is published. **Open Update Page** opens the GitHub page and reveals a copyable CMD command within the plugin.
 
