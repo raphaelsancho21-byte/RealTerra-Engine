@@ -1,9 +1,9 @@
--- RealTerra Engine v0.3.0
+-- RealTerra Engine v0.3.1
 -- Procedural voxel terrain, selective alpine snow, and varied forests.
 local Terrain = workspace.Terrain
 local HttpService = game:GetService("HttpService")
 local ChangeHistoryService = game:GetService("ChangeHistoryService")
-local VERSION = "0.3.0"
+local VERSION = "0.3.1"
 local UPDATE_URL = "https://github.com/raphaelsancho21-byte/RealTerra-Engine#install--update-via-cmd"
 local MANIFEST_URL = "https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/version.json"
 local INSTALL_CMD = 'curl -fL -o "%TEMP%\\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1 && powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\\realterra-install.ps1"'
@@ -97,12 +97,38 @@ local function getNumber(box,lo,hi)
  if not n or n~=n then return nil end
  return math.clamp(math.floor(n),lo,hi)
 end
+local function smoothstep(edge0,edge1,value)
+ local t=math.clamp((value-edge0)/(edge1-edge0),0,1)
+ return t*t*(3-2*t)
+end
 local function heightAt(x,z,seed,mountain)
+ -- Domain-warped, directional ridged multifractal terrain.
+ -- Ridge lines and mountain ranges replace the rounded isolated domes.
  local k=(seed%9999)*.103
- local broad=math.noise(x/310+k,z/310,k)*.7+math.noise(x/140+k,z/140,k+9)*.3
- local ridge=math.max(0,math.noise(x/235+k,z/235,k+31)*1.15+math.noise(x/110+k,z/110,k+64)*.25)
- local uplift=(ridge^1.75)*mountain*1.8
- return 28+broad*mountain*.22+uplift
+ local warpX=math.noise(x/360+k,z/360,k+11)*78
+ local warpZ=math.noise(x/390+k,z/390,k+27)*78
+ local px=x+warpX
+ local pz=z+warpZ
+ local lowland=math.noise(px/320,pz/320,k+42)*8
+  +math.noise(px/125,pz/125,k+56)*3
+ -- Rotated anisotropic ridge field: stretches crests into mountain chains.
+ local u=px*.83+pz*.56
+ local v=-px*.56+pz*.83
+ local macro=math.noise(u/680,v/440,k+63)
+ local rangeMask=.16+.84*smoothstep(-.25,.32,macro)
+ local function ridge(a,b,offset)
+  local n=math.noise(a,b,k+offset)
+  local r=1-math.min(1,math.abs(n)*1.65)
+  return r*r
+ end
+ local spine=ridge(u/285,v/105,79)
+ local branches=ridge(u/135,v/64,91)
+ local detail=ridge(u/62,v/35,108)
+ local strata=(spine*.72+branches*.22+detail*.06)
+ -- Offset keeps valleys clear; multiplying by mask organizes entire ranges.
+ local uplift=mountain*1.65*rangeMask*math.max(0,strata-.18)^1.4
+ local foothills=math.noise(px/190,pz/190,k+115)*mountain*.065
+ return math.max(12,25+lowland+foothills+uplift)
 end
 local function surfaceMaterial(height,mountain,snow)
  -- Snow needs both a truly high summit and high mountain-strength setting.
