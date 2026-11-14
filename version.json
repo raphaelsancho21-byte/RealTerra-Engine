@@ -1,5 +1,5 @@
 {
-  "version": "0.3.1",
-  "notes": "Reworked mountain geometry: elongated rugged ridgelines, branching crests and smoother valleys instead of rounded domes.",
+  "version": "0.4.0",
+  "notes": "Real Earth beta: holographic 3D globe selector, Natural Earth coastlines, OpenTopoData elevations, OpenStreetMap road import. No buildings.",
   "update_url": "https://github.com/raphaelsancho21-byte/RealTerra-Engine"
 }
