@@ -1,5 +1,5 @@
 
--- REALTERRA REAL WORLD ADDON v0.4.0
+-- REALTERRA REAL WORLD ADDON v0.4.1
 -- The installer appends this source to the core plugin as one Luau chunk.
 section("04  REAL EARTH  /  BETA","Pick a point on the holographic globe or enter coordinates.")
 local worldCard=Instance.new("Frame")
@@ -34,10 +34,10 @@ local function dot(lat,lon,rad,color,size)
 end
 local gridColor=Color3.fromRGB(28,111,120)
 for lat=-60,60,30 do
- for lon=-180,175,5 do dot(lat,lon,2.525,gridColor,.018) end
+ for lon=-180,170,10 do dot(lat,lon,2.525,gridColor,.018) end
 end
 for lon=-180,150,30 do
- for lat=-85,85,5 do dot(lat,lon,2.53,gridColor,.018) end
+ for lat=-80,80,10 do dot(lat,lon,2.53,gridColor,.018) end
 end
 local selectionDot=dot(-22.9068,-43.1729,2.59,C.green,.14)
 local selectionEntry=earthMarkers[#earthMarkers]
@@ -59,7 +59,7 @@ globeHint.TextSize=11;globeHint.Text="Drag to rotate  •  Click to select";glob
 local selectedLat,selectedLon=-22.9068,-43.1729
 local latBox=field("Latitude (-85 to 85)",-22.9068)
 local lonBox=field("Longitude (-180 to 180)",-43.1729)
-local areaBox=field("Area width in meters (200–1600)",400)
+local areaBox=field("Area width in meters (200–1600)",250)
 local worldScale=field("Studs per meter (0.5–2)",1)
 local coordinateInfo=label("Selected: Rio de Janeiro, Brazil",12,C.muted,23)
 local function setCoordinates(lat,lon,description)
@@ -128,19 +128,19 @@ task.spawn(function()
   local polys=shape.type=="Polygon" and {shape.coordinates} or shape.coordinates or {}
   for _,poly in ipairs(polys) do
    local outline=poly[1] or {}
-   local stride=math.max(1,math.floor(#outline/45))
+   local stride=math.max(1,math.ceil(#outline/18))
    for i=1,#outline,stride do
     local c=outline[i]
     if type(c)=="table" and type(c[1])=="number" then
      dot(c[2],c[1],2.545,landColor,.044)
      added+=1
-     if added%150==0 then task.wait() end
+     if added%120==0 then task.wait() end
     end
-    if added>=2200 then break end
+    if added>=650 then break end
    end
-   if added>=2200 then break end
+   if added>=650 then break end
   end
-  if added>=2200 then break end
+  if added>=650 then break end
  end
  redrawEarth()
  globeHint.Text="Natural Earth coastlines • Drag / select"
@@ -208,7 +208,7 @@ realGenerate.MouseButton1Click:Connect(function()
  running=true;realGenerate.Active=false
  task.spawn(function()
   local ok,err=pcall(function()
-   status.Text="Downloading measured elevations..."
+   status.Text="Step 1/3: fetching real elevation data..."
    local locations={}
    for row=0,8 do
     for col=0,8 do
@@ -232,10 +232,10 @@ realGenerate.MouseButton1Click:Connect(function()
      minElevation=math.min(minElevation,v)
     end
    end
-   status.Text="Downloading mapped streets..."
+   status.Text="Step 2/3: fetching OpenStreetMap roads (network wait)..."
    local roads={}
    local roadsAvailable=false
-   local query=string.format('[out:json][timeout:25];way["highway"](%0.6f,%0.6f,%0.6f,%0.6f);out geom;',south,west,north,east)
+   local query=string.format('[out:json][timeout:12];way["highway"](%0.6f,%0.6f,%0.6f,%0.6f);out geom;',south,west,north,east)
    local osmUrl="https://overpass-api.de/api/interpreter?data="..HttpService:UrlEncode(query)
    local roadsOk,roadsData=pcall(function()return requestJson(osmUrl)end)
    if roadsOk and type(roadsData.elements)=="table" then
@@ -264,39 +264,50 @@ realGenerate.MouseButton1Click:Connect(function()
    local cappedHeight=math.min(300,maxRel*elevationScale)
    local ymax=(math.ceil((cappedHeight+32)/4))*4
    local layers=(ymax-minY)/4
-   local chunk=20
+   local chunk=32
    local total=math.ceil(dimension/chunk)^2
    local done=0
+   status.Text="Step 3/3: generating terrain voxels..."
    for cx=0,dimension-1,chunk do
     for cz=0,dimension-1,chunk do
      local nx=math.min(chunk,dimension-cx)
      local nz=math.min(chunk,dimension-cz)
+     -- Sample elevation only once for each horizontal column, not once per Y voxel.
+     local surface={}
+     for xi=1,nx do
+      surface[xi]={}
+      local worldX=-edge+(cx+xi-.5)*4
+      local uu=(worldX+width/2)/width
+      for zi=1,nz do
+       local worldZ=-edge+(cz+zi-.5)*4
+       local vv=(worldZ+width/2)/width
+       local active=math.abs(worldX)<=width/2 and math.abs(worldZ)<=width/2
+       local h=active and math.min(300,math.max(2,(elevAt(heights,uu,vv)-minElevation)*elevationScale+4)) or -math.huge
+       surface[xi][zi]=h
+      end
+     end
      local mats,occs={},{}
      for xi=1,nx do
       mats[xi]={};occs[xi]={}
-      local worldX=-edge+(cx+xi-.5)*4
-      local uu=(worldX+width/2)/width
       for yi=1,layers do
-       mats[xi][yi]={};occs[xi][yi]={}
-       local ybottom=minY+(yi-1)*4
+       local materialRow,occupancyRow={},{}
+       mats[xi][yi]=materialRow;occs[xi][yi]=occupancyRow
+       local cellBottom=minY+(yi-1)*4
        for zi=1,nz do
-        local worldZ=-edge+(cz+zi-.5)*4
-        local vv=(worldZ+width/2)/width
-        local active=math.abs(worldX)<=width/2 and math.abs(worldZ)<=width/2
-        local elev=elevAt(heights,uu,vv)
-        local height=math.min(300,math.max(2,(elev-minElevation)*elevationScale+4))
-        local occ=active and math.clamp((height-ybottom)/4,0,1) or 0
-        occs[xi][yi][zi]=occ
-        mats[xi][yi][zi]=occ>0 and (height>110 and Enum.Material.Rock or Enum.Material.Grass) or Enum.Material.Air
+        local h=surface[xi][zi]
+        local occupancy=math.clamp((h-cellBottom)/4,0,1)
+        occupancyRow[zi]=occupancy
+        materialRow[zi]=occupancy>0 and (h>110 and Enum.Material.Rock or Enum.Material.Grass) or Enum.Material.Air
        end
       end
      end
      local r=Region3.new(Vector3.new(-edge+cx*4,minY,-edge+cz*4),Vector3.new(-edge+(cx+nx)*4,ymax,-edge+(cz+nz)*4))
      Terrain:WriteVoxels(r,4,mats,occs)
-     done+=1;status.Text=string.format("Building measured terrain: %d%%",math.floor(100*done/total))
+     done+=1;status.Text=string.format("Step 3/3: terrain %d%%",math.floor(100*done/total))
      task.wait()
     end
    end
+   status.Text="Placing mapped roads..."
    local roadFolder=Instance.new("Folder");roadFolder.Name="Roads";roadFolder.Parent=folder
    local segmentCount=0
    for _,way in ipairs(roads) do
@@ -327,6 +338,10 @@ realGenerate.MouseButton1Click:Connect(function()
         segment.CFrame=CFrame.lookAt((p0+p1)/2,p1)
         segment.Parent=roadFolder
         segmentCount+=1
+        if segmentCount%80==0 then
+         status.Text="Placing mapped roads: "..segmentCount.." segments"
+         task.wait()
+        end
        end
       end
      end
