@@ -14,14 +14,14 @@ powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\realterra-install.ps
 The installer downloads and assembles both Luau source files into the local plugin at:
 `%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx`
 
-## v0.4.0 - Real Earth beta
+## v0.4.1 - Real Earth beta (performance update)
 
 A new Real Earth section appears in the RealTerra sidebar. It contains:
 
 - 3D holographic globe in a ViewportFrame. Mouse-drag to rotate it and click to choose a location.
 - Land outlines fetched from **Natural Earth 110m**; the globe grid remains usable without outline access.
 - Latitude and longitude entry, with a quick city-preset cycling button.
-- Selected area width: **200–1600 meters**, scale: **0.5–2 Roblox studs per meter**.
+- Selected area width: **200–1600 meters** (default **250m**, start small), scale: **0.5–2 Roblox studs per meter**.
 - Real elevation samples from the **OpenTopoData Mapzen** global dataset (9×9 points, interpolated into Roblox terrain).
 - Street and path geometry from **OpenStreetMap** via the public Overpass API, drawn as asphalt Parts following the sampled terrain.
 - **No buildings**; city data only includes elevation and roads.
@@ -32,7 +32,7 @@ A new Real Earth section appears in the RealTerra sidebar. It contains:
 1. Open RealTerra from Roblox Studio Plugins toolbar.
 2. Scroll down to **04 REAL EARTH / BETA**.
 3. Rotate and click the globe, choose a preset, or type coordinates.
-4. Pick area width and scale. Start with **400m** to limit generation time.
+4. Pick area width and scale. Start with **250m** to limit generation time.
 5. Click **IMPORT REAL TERRAIN + ROADS**.
 6. Grant the requested HTTP permissions in the plugin dialog when prompted.
 
@@ -59,3 +59,13 @@ A new Real Earth section appears in the RealTerra sidebar. It contains:
 
 The existing procedural tool still supports terrain seeds, Baseplate size matching, mountain generation with optional snow, varied trees and density controls.
 
+
+### Performance changes in v0.4.1
+
+- Terrain height sampled once per X/Z voxel column, rather than in every vertical layer.
+- Voxel chunks increased to 32×32 for fewer engine calls.
+- Fewer globe markers and less geometry overhead.
+- Progress messages separate elevation download, OpenStreetMap download, voxel writing and road placement.
+- Default real-world import area reduced to 250m.
+
+The public Overpass and elevation services can still be slow or unavailable. Start in a blank Studio place and use a small area.
