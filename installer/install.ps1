@@ -1,7 +1,9 @@
 param([string]$Owner = "raphaelsancho21-byte", [string]$Repo = "RealTerra-Engine")
 $ErrorActionPreference = "Stop"
 $base = "https://raw.githubusercontent.com/$Owner/$Repo/main"
-$source = (Invoke-WebRequest -Uri "$base/plugin/RealTerra.luau" -UseBasicParsing).Content
+$core = (Invoke-WebRequest -Uri "$base/plugin/RealTerra.luau" -UseBasicParsing).Content
+$realWorld = (Invoke-WebRequest -Uri "$base/plugin/RealWorldAddon.luau" -UseBasicParsing).Content
+$source = $core + "`n" + $realWorld
 if (-not $source -or $source -notmatch "RealTerra Engine") { throw "Invalid plugin source" }
 if ($source.Contains("]]>")) { throw "Unsupported XML CDATA sequence" }
 $xml = '<?xml version="1.0" encoding="utf-8"?>' + "`n" +
