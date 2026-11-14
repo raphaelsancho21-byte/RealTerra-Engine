@@ -1,48 +1,37 @@
 # RealTerra Engine
 
-Free, open-source procedural terrain generator plugin for Roblox Studio on Windows.
+Open-source Roblox Studio terrain generation plugin for Windows.
 
 ## Install / update via CMD
 
-Run these commands in CMD (one at a time):
+Run in Windows CMD:
 
-```cmd
+\`\`\`cmd
 curl -fL -o "%TEMP%\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1
 powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\realterra-install.ps1"
-```
+\`\`\`
 
-Restart Roblox Studio, then click **RealTerra** in the Plugins toolbar.
+Restart Roblox Studio. The local plugin is written to \`%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx\`.
 
-The installer writes the local plugin to:
-`%LOCALAPPDATA%\Roblox\Plugins\RealTerra.rbxmx`.
+## RealTerra Engine v0.3.0
 
-## Version 0.2.0
+- Smoother **4-stud voxel** terrain via chunked \`Terrain:WriteVoxels\`, replacing the original block-column terrain.
+- Procedural rolling hills and mountain peaks.
+- **Snow on tall mountain peaks** (checkbox). Snow is only enabled with Mountain strength >= 90 and elevations above the alpine threshold; smaller hills stay green or rocky.
+- More detailed procedural tree models: broadleaf trees and conifers with varied sizes and crown shapes.
+- Trees distributed across the whole generated grassy area using seeded jitter and forest-density noise; steep slopes, rock and snow avoided.
+- **Match Baseplate size** checkbox uses the X/Z dimensions of a BasePart named \`Baseplate\`. Axis-aligned Baseplates supported.
+- Seed, mountain intensity, tree density and generation status controls.
+- **Check for Updates** checks the version manifest and opens update instructions if a new version is published. **Open Update Page** opens the GitHub page and reveals a copyable CMD command within the plugin.
 
-- Redesigned dark, green-accented dockable generator UI
-- **Match Baseplate size** checkbox: matches a `BasePart` named `Baseplate` in Workspace (including nested descendants), using its X and Z dimensions and its center position
-- Supports rectangular Baseplates, not just square maps
-- Manual map-size entry disabled while Baseplate mode is active
-- Seed, relief intensity and tree density controls
-- Procedural voxel terrain and simple placeholder trees
-- Progress and status messages
-- Check-for-updates button (reads GitHub's `version.json`)
+### Important limitations
 
-### How to use Baseplate matching
-
-1. Place a `Part` named exactly **Baseplate** into Workspace.
-2. Set its **Size** to your desired world dimensions.
-3. Open RealTerra; check **Match Baseplate size**.
-4. Click **Generate World**.
-
-**Note:** Terrain is generated over/around the Baseplate; the Baseplate itself is not removed. Hide or remove the Baseplate after generation if necessary.
-
-## Caveats
-
-- This is still a preview: trees are placeholder Parts, not realistic meshes.
-- Generation writes to `workspace.Terrain` and can overwrite existing terrain in its area. **Save or duplicate your place first.**
-- **Remove Generated Props** only removes generated tree models, not terrain.
-- Re-running generation after props cleanup writes terrain again. This does not automatically erase older terrain.
-- Baseplate dimensions accepted: 8–4096 studs in X and Z. Large worlds may take substantial time and memory to generate.
-- Plugins need HTTP permission to check updates.
-- Updates are **not silently installed**. Run the installer again and restart Studio.
-- The installer downloads plugin source directly from this repo. Review the script before executing it.
+- Local Studio plugins **cannot silently self-replace their installed .rbxmx file** with a supported public API. To install an update, use the CMD command and restart Studio. The button makes the update procedure visible and accessible; it does not silently install.
+- Save or duplicate your place before generation: the tool **overwrites voxel terrain inside the generation region**.
+- **Remove Generated Trees** does not undo terrain generation. Use Studio undo or a saved backup if needed.
+- The Baseplate itself is not removed.
+- Rotated or tilted Baseplates are refused in this version (terrain voxels are world-axis-aligned). Baseplates must be 8–2048 studs in X and Z.
+- Very large maps can take substantial time, RAM and Studio memory.
+- Trees are procedural Parts, not imported realistic 3D mesh models.
+- Plugin HTTP access may require permission to check updates.
+- Review the public installer before running it.
