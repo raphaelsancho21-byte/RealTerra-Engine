@@ -1,4 +1,5 @@
 {
-  "version": "0.2.0",
-  "notes": "Redesigned Studio panel, optional Match Baseplate size checkbox, rectangular terrain placement aligned with Baseplate."
+  "version": "0.3.0",
+  "notes": "Smoother voxel terrain, alpine snow only on high mountains, varied tree models and forest distribution, improved update workflow.",
+  "update_url": "https://github.com/raphaelsancho21-byte/RealTerra-Engine"
 }
