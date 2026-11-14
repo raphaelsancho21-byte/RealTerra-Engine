@@ -1,5 +1,5 @@
 {
-  "version": "0.4.1",
-  "notes": "Real Earth performance update: precomputed elevation columns, bigger voxel batches, fewer globe objects, step-by-step progress and smaller default region.",
+  "version": "0.5.0",
+  "notes": "Redesigned workspace with Generator, Real Earth and Updates tabs, native floating movable Studio window and global progress indicator.",
   "update_url": "https://github.com/raphaelsancho21-byte/RealTerra-Engine"
 }
