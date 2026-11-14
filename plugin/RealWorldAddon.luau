@@ -59,7 +59,7 @@ globeHint.TextSize=11;globeHint.Text="Drag to rotate  •  Click to select";glob
 local selectedLat,selectedLon=-22.9068,-43.1729
 local latBox=field("Latitude (-85 to 85)",-22.9068)
 local lonBox=field("Longitude (-180 to 180)",-43.1729)
-local areaBox=field("Area width in meters (200–1600)",800)
+local areaBox=field("Area width in meters (200–1600)",400)
 local worldScale=field("Studs per meter (0.5–2)",1)
 local coordinateInfo=label("Selected: Rio de Janeiro, Brazil",12,C.muted,23)
 local function setCoordinates(lat,lon,description)
@@ -194,6 +194,9 @@ realGenerate.MouseButton1Click:Connect(function()
   or meters<200 or meters>1600 or scale<.5 or scale>2 then
   status.Text="Invalid region coordinates, area or scale.";return
  end
+ if meters*scale>1600 then
+  status.Text="Area exceeds 1600 studs. Reduce map width or scale for Studio performance.";return
+ end
  if workspace:FindFirstChild("RealTerra_RealWorld") then
   status.Text="A real-world import already exists. Remove or rename it before importing another.";return
  end
@@ -231,11 +234,13 @@ realGenerate.MouseButton1Click:Connect(function()
    end
    status.Text="Downloading mapped streets..."
    local roads={}
+   local roadsAvailable=false
    local query=string.format('[out:json][timeout:25];way["highway"](%0.6f,%0.6f,%0.6f,%0.6f);out geom;',south,west,north,east)
    local osmUrl="https://overpass-api.de/api/interpreter?data="..HttpService:UrlEncode(query)
    local roadsOk,roadsData=pcall(function()return requestJson(osmUrl)end)
    if roadsOk and type(roadsData.elements)=="table" then
     roads=roadsData.elements
+    roadsAvailable=true
    else
     status.Text="Road service unavailable; generating measured terrain without roads."
    end
@@ -330,7 +335,7 @@ realGenerate.MouseButton1Click:Connect(function()
    end
    folder:SetAttribute("RoadSegments",segmentCount)
    ChangeHistoryService:SetWaypoint("RealTerra real world import")
-   status.Text=string.format("Imported REAL elevations and %d road segments. %.0fm area. No buildings.",segmentCount,meters)
+   status.Text=string.format("Imported elevation + %d road segments (%.0fm). %s",segmentCount,meters,roadsAvailable and "No buildings." or "Road API unavailable.")
   end)
   if not ok then status.Text="Real-world import failed: "..tostring(err) end
   running=false;realGenerate.Active=true
