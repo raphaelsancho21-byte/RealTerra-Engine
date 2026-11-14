@@ -1,9 +1,9 @@
--- RealTerra Engine v0.4.1
+-- RealTerra Engine v0.5.0
 -- Procedural voxel terrain, selective alpine snow, and varied forests.
 local Terrain = workspace.Terrain
 local HttpService = game:GetService("HttpService")
 local ChangeHistoryService = game:GetService("ChangeHistoryService")
-local VERSION = "0.4.1"
+local VERSION = "0.5.0"
 local UPDATE_URL = "https://github.com/raphaelsancho21-byte/RealTerra-Engine#install--update-via-cmd"
 local MANIFEST_URL = "https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/version.json"
 local INSTALL_CMD = 'curl -fL -o "%TEMP%\\realterra-install.ps1" https://raw.githubusercontent.com/raphaelsancho21-byte/RealTerra-Engine/main/installer/install.ps1 && powershell -NoProfile -ExecutionPolicy Bypass -File "%TEMP%\\realterra-install.ps1"'
@@ -11,7 +11,7 @@ local INSTALL_CMD = 'curl -fL -o "%TEMP%\\realterra-install.ps1" https://raw.git
 local toolbar=plugin:CreateToolbar("RealTerra Engine")
 local toggle=toolbar:CreateButton("RealTerra","Open RealTerra Engine","rbxassetid://4458901886")
 toggle.ClickableWhenViewportHidden=true
-local widget=plugin:CreateDockWidgetPluginGui("RealTerraEnginePanel", DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Right,true,false,390,650,330,450))
+local widget=plugin:CreateDockWidgetPluginGui("RealTerraEnginePanel", DockWidgetPluginGuiInfo.new(Enum.InitialDockState.Float,true,false,470,680,360,460))
 widget.Title="RealTerra Engine | "..VERSION
 toggle.Click:Connect(function()widget.Enabled=not widget.Enabled end)
 local C={bg=Color3.fromRGB(17,24,22),panel=Color3.fromRGB(27,39,33),input=Color3.fromRGB(39,53,44),
